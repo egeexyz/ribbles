@@ -1,9 +1,5 @@
 require 'gosu'
-
-# Still chilling
-module ZOrder
-  BACKGROUND, STARS, PLAYER, UI = *0..3
-end
+require_relative 'z_order.rb'
 
 # Just chilling
 class GameWindow < Gosu::Window
@@ -22,28 +18,20 @@ class GameWindow < Gosu::Window
   end
 
   def update
-    if Gosu.button_down? Gosu::KbLeft
-      @player.turn_left
-    end
-    if Gosu.button_down? Gosu::KbRight
-      @player.turn_right
-    end
-    if Gosu.button_down? Gosu::KbUp
-      @player.accelerate
-    end
+    @player.turn_left if Gosu.button_down? Gosu::KbLeft
+    @player.turn_right if Gosu.button_down? Gosu::KbRight
+    @player.accelerate if Gosu.button_down? Gosu::KbUp
     @player.move
     @player.collect_stars(@stars)
-
-    if rand(100) < 4 && @stars.size < 25
-      @stars.push(Star.new(@star_anim))
-    end
+    @stars.push(Star.new(@star_anim)) if rand(100) < 4 && @stars.size < 25
   end
 
   def draw
     @background_image.draw(0, 0, 0)
     @player.draw
-    @stars.each { |star| star.draw }
-    @font.draw("Score: #{@player.score}", 10, 10, ZOrder::UI, 1.0, 1.0, 0xff_ffff00)
+    @stars.each(&:draw)
+    @font.draw("Score: #{@player.score}",
+               10, 10, ZOrder::UI, 1.0, 1.0, 0xff_ffff00)
   end
 
   def button_down(id)
